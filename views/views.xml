@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="course_form_view">
+            <field name="name">course.form</field>
+            <field name="model">odoogoedu.course</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                              <field name="responsible_id"/>
+                        </group>
+                        <notebook>
+                            <page string="描述">
+                                <field name="description"/>
+                            </page>
+                             <page string="课时">
+                                <field name="session_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="instructor_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="备注">
+                                <field name="note"/>
+                            </page>
+                            <page string="关于">
+                                测试页面
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+         <record model="ir.ui.view" id="course_tree_view">
+            <field name="name">course.tree</field>
+            <field name="model">odoogoedu.course</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="responsible_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!--<record model="ir.ui.view" id="course_search_view">-->
+            <!--<field name="name">course.search</field>-->
+            <!--<field name="model">odoogoedu.course</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<search>-->
+                    <!--<field name="name"/>-->
+                    <!--<field name="description"/>-->
+                <!--</search>-->
+            <!--</field>-->
+        <!--</record>-->
+        <record model="ir.ui.view" id="course_search_view2">
+            <field name="name">course.search</field>
+            <field name="model">odoogoedu.course</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="description"/>
+                     <filter name="my_courses" string="我的课程"
+                            domain="[('responsible_id', '=', uid)]"/>
+                    <group string="分组">
+                        <filter name="by_responsible" string="Responsible"
+                                context="{'group_by': 'responsible_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="course_list_action">
+            <field name="name">课程</field>
+            <field name="res_model">odoogoedu.course</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+             <field name="search_view_id" ref="course_search_view2"/>
+              <field name="context" eval="{'search_default_by_responsible': 1}"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">创建一个课程
+                </p>
+            </field>
+        </record>
+
+ <record model="ir.ui.view" id="session_form_view">
+            <field name="name">session.form</field>
+            <field name="model">odoogoedu.session</field>
+            <field name="arch" type="xml">
+        <form >
+                    <sheet>
+                        <group>
+                            <group string="基础资料">
+                                <field name="course_id"/>
+                                <field name="name"/>
+                                <field name="test_name"/>
+                                <field name="instructor_id"/>
+                                <field name="active"/>
+                                <field name="user_id"/>
+                            </group>
+                            <group string="安排计划">
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                                <field name="duration"/>
+                                <field name="seats"/>
+                                <field name="taken_seats" widget="progressbar"/>
+                            </group>
+                        </group>
+                        <label for="attendee_ids"/>
+                        <field name="attendee_ids"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+         <record model="ir.ui.view" id="session_tree_view">
+            <field name="name">session.tree</field>
+            <field name="model">odoogoedu.session</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" decoration-info="duration&lt;5" decoration-danger="duration&gt;15">
+                    <field name="name"/>
+                    <!--<field name="test_name"/>-->
+                    <field name="course_id"/>
+                    <field name="duration" invisible="1"/>
+                    <!--<field name="user_id"/>-->
+                    <field name="taken_seats" widget="progressbar"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- calendar view -->
+        <record model="ir.ui.view" id="session_calendar_view">
+            <field name="name">session.calendar</field>
+            <field name="model">odoogoedu.session</field>
+            <field name="arch" type="xml">
+                <calendar string="Session Calendar" date_start="start_date"
+                          date_stop="end_date_display"
+                          color="instructor_id">
+                    <field name="name"/>
+                </calendar>
+            </field>
+        </record>
+
+           <record model="ir.ui.view" id="view_session_kanban">
+            <field name="name">session.kanban</field>
+            <field name="model">odoogoedu.session</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="course_id">
+                    <field name="color"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div
+                                    t-attf-class="oe_kanban_color_{{kanban_getcolor(record.color.raw_value)}}
+                                                  oe_kanban_global_click_edit oe_semantic_html_override
+                                                  oe_kanban_card {{record.group_fancy==1 ? 'oe_kanban_card_fancy' : ''}}">
+                                <div class="oe_dropdown_kanban">
+                                    <!-- dropdown menu -->
+                                    <div class="oe_dropdown_toggle">
+                                        <span class="oe_e">#</span>
+                                        <ul class="oe_dropdown_menu">
+                                            <li>
+                                                <a type="delete">Delete</a>
+                                            </li>
+                                            <li>
+                                                <ul class="oe_kanban_colorpicker"
+                                                    data-field="color"/>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="oe_clear"></div>
+                                </div>
+                                <div t-attf-class="oe_kanban_content">
+                                    <!-- title -->
+                                    Session name:
+                                    <field name="name"/>
+                                    <br/>
+                                    Start date:
+                                    <field name="start_date"/>
+                                    <br/>
+                                    duration:
+                                    <field name="duration"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+         <record model="ir.ui.view" id="odoogoedu_session_graph_view">
+            <field name="name">odoogoedu.session.graph</field>
+            <field name="model">odoogoedu.session</field>
+            <field name="arch" type="xml">
+                <graph string="Participations by Courses">
+                    <field name="course_id"/>
+                    <field name="attendees_count" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="session_list_action">
+            <field name="name">课时</field>
+            <field name="res_model">odoogoedu.session</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,calendar,kanban,graph</field>
+        </record>
+
+
+        <menuitem id="main_odoogoedu_menu" name="课程管理"/>
+        <menuitem id="odoogoedu_menu" name="教室"
+                  parent="main_odoogoedu_menu"/>
+        <menuitem id="courses_menu" name="课程" parent="odoogoedu_menu"
+                  action="course_list_action"/>
+                <menuitem id="session_menu" name="课时"
+                  parent="odoogoedu_menu"
+                  action="session_list_action"/>
+
+         <record model="ir.actions.act_window" id="contact_cat_list_action">
+            <field name="name">Contact Tags</field>
+            <field name="res_model">res.partner.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+         <record model="ir.ui.view" id="wizard_form_view">
+            <field name="name">wizard.form</field>
+            <field name="model">odoogoedu.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Add Attendees">
+                    <group>
+                        <field name="session_ids"/>
+                        <field name="attendee_ids"/>
+                    </group>
+                    <footer>
+                         <button name="subscribe" type="object" string="Subscribe" class="oe_highlight"/>                or <button special="cancel" string="Cancel"/>
+                     </footer>
+                </form>
+            </field>
+        </record>
+
+         <act_window id="launch_session_wizard"
+                    name="添加学生"
+                    src_model="odoogoedu.session"
+                    res_model="odoogoedu.wizard"
+                    view_mode="form"
+                    target="new"
+                    key2="client_action_multi"/>
+    </data>
+</odoo>
